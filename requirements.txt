@@ -1,0 +1,20 @@
+# GUI
+tkinter
+
+# Database
+sqlalchemy
+
+# Encryption
+cryptography
+
+# Testing
+pytest
+
+# Code formatting
+black
+
+# Type checking
+mypy
+
+# Documentation
+sphinx
