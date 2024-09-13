@@ -1,13 +1,15 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from backend.user_auth import authenticate_user, register_user
+from backend.database import User, Database
 
 class LoginScreen(tk.Frame):
-    def __init__(self,master=None, login_callback=None):
+    def __init__(self,master=None, login_callback=None, register_callback = None):
         super().__init__(master)
         self.master=master
         self.login_callback = login_callback
-        #self.configure(background="#f0f0f0")
+        self.register_callback = register_callback
+        self.db = Database()
+        self.user = User(self.db)
         self.create_widgets()
     
     def create_widgets(self):
@@ -22,18 +24,19 @@ class LoginScreen(tk.Frame):
         self.password_entry.grid(row=1, column=1, padx=5, pady=5)
 
         self.login_button = tk.Button(self, text="Login", command=self.login)
-        self.login_button.grid(row=2, column=0, pady=10, padx=10, sticky='e')
+        self.login_button.grid(row=2, column=0, pady=10, )
 
         self.register_button = tk.Button(self, text="Register", command=self.register)
-        self.register_button.grid(row=2, column=1, pady=10, padx=20, sticky='w')
+        self.register_button.grid(row=2, column=1, pady=10, )
 
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        if authenticate_user(username, password):
+        if self.user.login(username, password):
+            user_id = self.user.get_user_id(username)
             messagebox.showinfo("Login successfully", f"welcome {username}!")
             if self.login_callback:
-                self.login_callback(username)
+                self.login_callback(username, password, user_id)
         else:
             messagebox.showerror("Login failed", "invailed username or password")
 
@@ -42,7 +45,7 @@ class LoginScreen(tk.Frame):
         password = self.password_entry.get()
         if not username or not password:
             messagebox.showerror("Registeration Failed", "Username and password cannot be empty")
-        elif register_user(username, password):
+        elif self.user.register(username, password):
             messagebox.showinfo("Registeration successful", "User Registration Successfully!")
         else:
             messagebox.showerror("Registarion failed", "username already exists")
@@ -50,9 +53,10 @@ class LoginScreen(tk.Frame):
 
 
 class PasswordListView(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, add_callback=None):
         super().__init__(master)
         self.master = master
+        self.add_callback = add_callback
         self.create_widgets()
         self.passwords = []
 
@@ -67,7 +71,7 @@ class PasswordListView(tk.Frame):
         scrollbar.grid(row=0, column=1, sticky='ns')
         self.tree.configure(yscroll=scrollbar.set)
 
-        self.add_button = tk.Button(self, text="Add Password", command=self.master.show_add_edit_form)
+        self.add_button = tk.Button(self, text="Add Password", command=self.add_callback)
         self.add_button.grid(row=1, column=0, pady=10)
 
     def add_password(self, website, username, password):
@@ -76,12 +80,20 @@ class PasswordListView(tk.Frame):
          self.refresh_list()
          print(f"password added for {website}")
 
+    def clear_passwords(self):
+        self.passwords.clear()
+        self.refresh_list()
+
     def refresh_list(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
         for password in self.passwords:
             self.tree.insert('', 'end', values=password)
         print(f"List refresh, {len(self.passwords)} password in list")
+
+    def load_passwords(self, passwords):
+        self.passwords = passwords
+        self.refresh_list()
 
 
 class AddEditPasswordForm(tk.Toplevel):
