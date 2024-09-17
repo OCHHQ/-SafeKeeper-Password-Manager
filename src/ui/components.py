@@ -53,18 +53,25 @@ class LoginScreen(tk.Frame):
 
 
 class PasswordListView(tk.Frame):
-    def __init__(self, master=None, add_callback=None):
+    def __init__(self, master=None, add_callback=None, edit_callback=None, delete_callback=None):
         super().__init__(master)
         self.master = master
         self.add_callback = add_callback
+        self.edit_callback = edit_callback
+        self.delete_callback = delete_callback
         self.create_widgets()
         self.passwords = []
 
     def create_widgets(self):
-        self.tree = ttk.Treeview(self, columns=('Website', 'Username', 'Password'), show='headings')
+        self.tree = ttk.Treeview(self, columns=('ID','Website', 'Username', 'Password'), show='headings')
+        self.tree.heading('ID', text='ID')
         self.tree.heading('Website', text='Website')
         self.tree.heading('Username', text='Username')
         self.tree.heading('Password', text='Password')
+        self.tree.column('ID', width=50)
+        self.tree.column('Website', width=150)
+        self.tree.column('Username', width=150)
+        self.tree.column('Password', width=500)
         self.tree.grid(row=0, column=0, sticky='nsew')
 
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview)
@@ -74,33 +81,49 @@ class PasswordListView(tk.Frame):
         self.add_button = tk.Button(self, text="Add Password", command=self.add_callback)
         self.add_button.grid(row=1, column=0, pady=10)
 
-    def add_password(self, website, username, password):
-         #change
-         self.passwords.append((website, username, password))
-         self.refresh_list()
-         print(f"password added for {website}")
+        self.edit_button = tk.Button(self, text="Edit password", command=self.edit_callback)
+        self.edit_button.grid(row=1, column=1, padx=10)
+
+        self.delete_button = tk.Button(self, text="Delete password", command=self.delete_callback)
+        self.delete_button.grid(row=1, column=2, padx=10)
+
+    def load_passwords(self, passwords):
+        self.passwords = passwords
+        self.refresh_list()
+
+    
+    def get_selected_item(self):
+        selection = self.tree.selection()
+        if selection:
+            return self.tree.item(selection[0])["values"]
+        return None
+    
+    def add_password(self,password_id, website, username, password):
+        self.passwords.append((password_id, website, username, password))
+        self.refresh_list()
 
     def clear_passwords(self):
-        self.passwords.clear()
+        self.passwords = []
         self.refresh_list()
 
     def refresh_list(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
         for password in self.passwords:
-            self.tree.insert('', 'end', values=password)
-        print(f"List refresh, {len(self.passwords)} password in list")
+            self.tree.insert('', "end", values=password)
 
-    def load_passwords(self, passwords):
-        self.passwords = passwords
-        self.refresh_list()
+
+    
+
+
 
 
 class AddEditPasswordForm(tk.Toplevel):
-    def __init__(self, master=None, callback= None):
+    def __init__(self, master=None, callback= None, initial_values= None):
         super().__init__(master)
         self.title("Add/edit password")
         self.callback = callback
+        self.initial_values = initial_values
         self.create_widgets()
 
     def create_widgets(self):
@@ -121,6 +144,11 @@ class AddEditPasswordForm(tk.Toplevel):
 
         self.save_button = tk.Button(self, text="Save", command=self.save_password)
         self.save_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+        if self.initial_values:
+            self.website_entry.insert(0, self.initial_values[1])
+            self.username_entry.insert(0, self.initial_values[2])
+            self.password_entry.insert(0, self.initial_values[3])
 
     def save_password(self):
             website = self.website_entry.get()
