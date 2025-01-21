@@ -126,7 +126,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Thanks to ALX who as helped shape and craft my SafeKeeper.
 - Special thanks to the Python and Tkinter communities for their excellent documentation and resources.
 
-# Contributor
+# Contributors
 ### Chiba Ismail
 Email: ismailchiba0@gmail.com
 github: ismailchiba
