@@ -129,16 +129,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 # Contributor
 ### Chiba Ismail
 Email: ismailchiba0@gmail.com
- github: ismailchiba
+github: ismailchiba
 
 ### Enoseje Collins
 Email: enosejecollins@gmail.com
- github: OCHHQ
+github: OCHHQ
 
 ### Onyinyechi Nwaneri
 Email: onyinychinwaneri@gmail.com
- github: onyii-e
+github: onyii-e
 
 ### Obah Edwin
 Email: obahedwin@ymail.com
- github: Babaoni147
+github: Babaoni147
